@@ -1,26 +1,382 @@
 @import "tailwindcss";
 
+@theme {
+  /* Palette — dark cinematic. These are the defaults; the light overrides
+     below re-declare the same custom properties at higher specificity, so
+     every `bg-ink` / `text-muted` utility follows the theme for free. */
+  --color-ink: #0a0a0b;
+  --color-ink-2: #0f0f11;
+  --color-surface: #131316;
+  --color-line: #232327;
+  --color-line-soft: #1a1a1e;
+  --color-bone: #e9e9e6;
+  --color-muted: #86868f;
+  --color-muted-2: #5a5a63;
+  --color-accent: #4f7cff;
+  --color-accent-dim: #2b47a0;
+
+  /* Type */
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", monospace;
+  --font-serif: var(--font-instrument-serif), "Times New Roman", serif;
+
+  /* Motion */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+/**
+ * Theme-dependent values that aren't plain palette entries — anything a
+ * component would otherwise hardcode (nav backdrop, glows, shadows, grain).
+ * Keeping them here is what lets the GSAP-driven components stay colour-free.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --nav-bg: rgb(10 10 11 / 0.86);
+  --nav-border: rgb(35 35 39 / 1);
+  --glow: rgb(79 124 255 / 0.22);
+  --glow-soft: rgb(79 124 255 / 0.16);
+  --grain-opacity: 0.032;
+  --card-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.6);
+  --ring-idle: rgb(233 233 230 / 0.35);
+  --img-scrim: rgb(10 10 11 / 0.45);
+  --hero-grid: rgb(233 233 230 / 0.045);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* The inline script in layout.tsx always stamps an explicit data-theme, so
+   there's no need to duplicate any of this inside a prefers-color-scheme
+   query — the script has already resolved the preference. */
+:root[data-theme="light"] {
+  --color-ink: #fbfaf7;
+  --color-ink-2: #f4f2ec;
+  --color-surface: #ffffff;
+  --color-line: #e4e1d8;
+  --color-line-soft: #efede6;
+  --color-bone: #15151a;
+  --color-muted: #6a6a72;
+  --color-muted-2: #85858d;
+  --color-accent: #2e5bd8;
+  --color-accent-dim: #93aaf0;
+
+  --nav-bg: rgb(251 250 247 / 0.86);
+  --nav-border: rgb(228 225 216 / 1);
+  --glow: rgb(46 91 216 / 0.13);
+  --glow-soft: rgb(46 91 216 / 0.09);
+  --grain-opacity: 0.02;
+  --card-shadow: 0 25px 50px -12px rgb(30 30 40 / 0.16);
+  --ring-idle: rgb(21 21 26 / 0.35);
+  --img-scrim: rgb(251 250 247 / 0.35);
+  --hero-grid: rgb(21 21 26 / 0.05);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* Colour-scheme-aware form controls, scrollbars and canvas. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-line);
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    scrollbar-color: var(--color-line) var(--color-ink);
+  }
+
+  body {
+    background-color: var(--color-ink);
+    color: var(--color-bone);
+    font-family: var(--font-sans);
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background-color: var(--color-accent);
+    color: #fff;
+  }
+
+  /* Applied for ~450ms around a theme switch, then removed. Cross-fades the
+     whole page without leaving a transition on every element permanently. */
+  html.theme-transition *,
+  html.theme-transition *::before,
+  html.theme-transition *::after {
+    transition:
+      background-color 0.4s ease,
+      border-color 0.4s ease,
+      color 0.4s ease,
+      fill 0.4s ease,
+      stroke 0.4s ease !important;
+    transition-delay: 0s !important;
+  }
+
+  /* Lenis */
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+  .lenis.lenis-stopped {
+    overflow: hidden;
+  }
+
+  /* Native anchor jumps stay instant; Lenis handles the smooth case. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@utility container-x {
+  width: 100%;
+  margin-inline: auto;
+  max-width: 90rem;
+  padding-inline: 1.25rem;
+
+  @media (width >= 48rem) {
+    padding-inline: 2.5rem;
+  }
+  @media (width >= 80rem) {
+    padding-inline: 4rem;
+  }
+}
+
+/* Small uppercase mono label used for section eyebrows and metadata.
+   Drives the nav meta, hero meta, section indexes and every "Role" /
+   "Built with" style caption — so this size is the site's whole caption scale. */
+@utility label {
+  font-family: var(--font-mono);
+  font-size: 0.775rem;
+  line-height: 1.15;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+/* Display type: tight tracking, optical balance at very large sizes. */
+@utility display {
+  font-weight: 600;
+  letter-spacing: -0.045em;
+  line-height: 0.88;
+  text-wrap: balance;
+}
+
+/* Hollow display type — the counterpoint to the solid line above it. */
+@utility text-outline {
+  color: transparent;
+  -webkit-text-stroke: 1px var(--color-muted-2);
+
+  @media (width >= 48rem) {
+    -webkit-text-stroke-width: 1.5px;
+  }
+}
+
+@utility serif-accent {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+/* Text that gets split into chars/words by GSAP SplitText — each line is
+   clipped so glyphs can slide in from below without bleeding. */
+@utility split-mask {
+  overflow: hidden;
+  display: block;
+}
+
+.split-line {
+  overflow: hidden;
+  display: block;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+
+/* <Reveal> ships hidden and GSAP makes it visible once the split masks exist.
+   Without JS — or with reduced motion — the rules below keep the text legible. */
+.reveal-pending {
+  visibility: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-pending {
+    visibility: visible;
+  }
+}
+
+.no-js .reveal-pending {
+  visibility: visible;
+}
+
+/* Hairline rules that draw themselves in on scroll. */
+.rule {
+  height: 1px;
+  width: 100%;
+  background-color: var(--color-line);
+  transform-origin: left center;
+}
+
+/* Film grain — a static SVG noise tile, animated by stepped position shifts. */
+.grain {
+  position: fixed;
+  inset: -150%;
+  z-index: 60;
+  pointer-events: none;
+  opacity: var(--grain-opacity);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grain-shift 0.7s steps(1) infinite;
+  will-change: transform;
+}
+
+@keyframes grain-shift {
+  0% {
+    transform: translate(0, 0);
+  }
+  20% {
+    transform: translate(-3%, 2%);
+  }
+  40% {
+    transform: translate(2%, -3%);
+  }
+  60% {
+    transform: translate(-2%, -2%);
+  }
+  80% {
+    transform: translate(3%, 1%);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grain {
+    animation: none;
+  }
+
+  /* The pinned horizontal experience track only works with scroll-driven
+     motion. Without it the layout has to collapse back to a plain stack,
+     or the cards sit clipped in a container nothing can scroll. */
+  .xp-pin {
+    display: block;
+    height: auto;
+    overflow: visible;
+  }
+
+  .xp-track {
+    width: 100%;
+    flex-direction: column;
+    padding-right: 1.25rem;
+  }
+
+  .xp-card {
+    width: 100%;
+  }
+}
+
+/* Hide the native cursor only where we render a custom one. */
+@media (hover: hover) and (pointer: fine) {
+  html.has-custom-cursor,
+  html.has-custom-cursor * {
+    cursor: none !important;
+  }
+}
+
+/* Link with an underline that wipes in from the left. */
+.link-wipe {
+  position: relative;
+  display: inline-block;
+}
+.link-wipe::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -0.1em;
+  height: 1px;
+  width: 100%;
+  background-color: currentColor;
+  transform: scaleX(0);
+  transform-origin: right center;
+  transition: transform 0.5s var(--ease-out-expo);
+}
+.link-wipe:hover::after,
+.link-wipe:focus-visible::after {
+  transform: scaleX(1);
+  transform-origin: left center;
+}
+
+/* Focus ring — visible in both themes, never on mouse clicks. */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ---------------------------------------------------------------------------
+ * Theme-dependent component state.
+ *
+ * These used to be colour literals inside GSAP tweens, which can't follow a
+ * runtime theme change. GSAP now toggles the class and CSS owns the colour.
+ * ------------------------------------------------------------------------ */
+
+.site-nav {
+  background-color: transparent;
+  border-bottom-color: transparent;
+  transition:
+    background-color 0.4s ease,
+    border-color 0.4s ease,
+    backdrop-filter 0.4s ease;
+}
+
+.site-nav.is-scrolled {
+  background-color: var(--nav-bg);
+  border-bottom-color: var(--nav-border);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.cursor-ring {
+  border-color: var(--ring-idle);
+  transition: border-color 0.35s ease;
+}
+
+.cursor-ring.is-active {
+  border-color: var(--color-accent);
+}
+
+/* Faint engineering grid behind the hero — reads as paper texture in light
+   mode and as a blueprint in dark. */
+.hero-grid {
+  background-image:
+    linear-gradient(to right, var(--hero-grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--hero-grid) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(ellipse 80% 55% at 50% 35%, #000 20%, transparent 75%);
+  -webkit-mask-image: radial-gradient(
+    ellipse 80% 55% at 50% 35%,
+    #000 20%,
+    transparent 75%
+  );
+}
+
+/* Screenshots are all light-UI captures; in dark mode they need knocking back
+   so they don't glare against the page. */
+.project-img {
+  filter: brightness(0.92) contrast(1.02);
+}
+
+:root[data-theme="light"] .project-img {
+  filter: none;
 }

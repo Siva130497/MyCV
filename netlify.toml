@@ -1,0 +1,36 @@
+# Netlify build configuration.
+#
+# The Next.js adapter (OpenNext) is installed and updated automatically by
+# Netlify on every build — deliberately not pinned here, so the runtime keeps
+# pace with Next.js releases rather than going stale.
+
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  # Next.js 16 requires Node 20+; 22 is the current LTS.
+  NODE_VERSION = "22"
+
+# Long-cache the immutable build output. Everything under /_next/static is
+# content-hashed, so it can never go stale behind this header.
+[[headers]]
+  for = "/_next/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/img/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800, must-revalidate"
+
+# Baseline security headers. No CSP here: the app inlines a theme script and
+# GSAP writes inline styles, so a strict policy needs a nonce pass — worth
+# adding deliberately later rather than shipping one that breaks the page.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Frame-Options = "SAMEORIGIN"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), interest-cohort=()"
