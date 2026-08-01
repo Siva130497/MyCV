@@ -153,7 +153,7 @@ export default function Hero() {
               </p>
             </div>
 
-            <div className="hero-fade reveal-pending sm:col-span-3 sm:text-right">
+            <div className="hero-fade reveal-pending flex flex-col items-start gap-3 sm:col-span-3 sm:items-end">
               <a
                 href="#work"
                 data-cursor="Scroll"
@@ -165,6 +165,15 @@ export default function Hero() {
                     <path d="M6 1.5v9M2 7l4 4 4-4" />
                   </svg>
                 </span>
+              </a>
+
+              <a
+                href={person.cvPath}
+                download={person.cvFileName}
+                data-cursor="PDF"
+                className="link-wipe text-muted hover:text-bone text-[13px] transition-colors duration-300"
+              >
+                Download CV (PDF)
               </a>
             </div>
           </div>

@@ -28,6 +28,9 @@ export const person = {
   phoneHref: "+447774946384",
   available: true,
   availabilityNote: "Open to AI leadership & consulting work",
+  /** Served from /public — keep in sync with the generated CV. */
+  cvPath: "/vithurushan-meeneswaran-cv.pdf",
+  cvFileName: "Vithurushan Meeneswaran - CV.pdf",
 } as const;
 
 export const socials = [
@@ -349,17 +352,6 @@ export const skillGroups: SkillGroup[] = [
       "Arduino",
       "Flutter",
       "Kotlin",
-    ],
-  },
-  {
-    title: "Ways of working",
-    items: [
-      "Technical leadership",
-      "Architecture & ADRs",
-      "Code review",
-      "Mentoring",
-      "Remote-first delivery",
-      "Teaching MERN",
     ],
   },
 ];

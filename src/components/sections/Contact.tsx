@@ -67,6 +67,21 @@ export default function Contact() {
           within a day.
         </p>
 
+        {/* Secondary action — the full CV for anyone who wants the detail */}
+        <a
+          href={person.cvPath}
+          download={person.cvFileName}
+          data-cursor="PDF"
+          className="group border-line hover:border-accent mt-8 inline-flex items-center gap-3 rounded-full border py-2.5 pr-2.5 pl-5 text-[13px] transition-colors duration-500"
+        >
+          Download CV
+          <span className="bg-accent flex size-7 items-center justify-center rounded-full transition-transform duration-500 group-hover:translate-y-0.5">
+            <svg viewBox="0 0 12 12" className="size-3 fill-none stroke-white stroke-[1.5]">
+              <path d="M6 1.5v7M2.5 5.5 6 9l3.5-3.5M2 10.5h8" />
+            </svg>
+          </span>
+        </a>
+
         {/* The main call to action */}
         <div className="mt-10 md:mt-14">
           <Magnetic strength={0.18}>

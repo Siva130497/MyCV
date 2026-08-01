@@ -9,7 +9,9 @@ npm install
 npm run dev
 ```
 
-Opens on http://localhost:3000. `npm run build` prerenders the whole page as static content — there are no server routes or environment variables.
+Opens on http://localhost:3000. `npm run build` prerenders every route as static content — there are no server routes. The only environment variable is `NEXT_PUBLIC_SITE_URL` (see [Deploying to Netlify](#deploying-to-netlify)); it falls back to a sensible default locally.
+
+The downloadable CV is a plain file at `public/vithurushan-meeneswaran-cv.pdf`, regenerated separately from the site — replace it in place and the links pick it up.
 
 ## Editing content
 
@@ -24,7 +26,8 @@ Opens on http://localhost:3000. `npm run build` prerenders the whole page as sta
 | Job history                       | `experience`   |
 | Degrees and diplomas              | `education`    |
 | Spoken languages                  | `languages`    |
-| Skill chips (9 groups)            | `skillGroups`  |
+| Downloadable CV path              | `person.cvPath` |
+| Skill chips (8 groups)            | `skillGroups`  |
 | Scrolling word strip              | `marquee`      |
 | Projects                          | `projects`     |
 | The compact "Also built" list     | `sideProjects` |
